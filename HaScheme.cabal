@@ -29,6 +29,7 @@ executable HaScheme-exe
   build-depends:       base
                      , HaScheme
                      , parsec
+                     , ansi-terminal
   default-language:    Haskell2010
 
 test-suite HaScheme-test
