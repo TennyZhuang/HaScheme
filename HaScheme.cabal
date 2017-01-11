@@ -18,8 +18,10 @@ library
   exposed-modules:     Lexer
                      , AST
                      , Parser
+                     , Interpreter
   build-depends:       base >= 4.7 && < 5
                      , parsec
+                     , mtl == 2.2.1
   default-language:    Haskell2010
 
 executable HaScheme-exe
