@@ -1,0 +1,11 @@
+language: haskell
+ghc: 8.0
+cache:
+  directories:
+    - $HOME/.cabal
+before_install:
+  - cabal install happy
+  - export PATH=$HOME/.cabal/bin:$PATH
+install:
+  - cabal install hlint
+script: hlint app src
