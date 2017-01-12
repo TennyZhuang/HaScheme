@@ -155,6 +155,7 @@ eval env (ConsExpr (l, r)) = do
   left <- eval env l
   right <- eval env r
   return $ SchemeCons (left, right)
+eval env (SymbolExpr varname) = getVar env varname
 eval _ NilExpr = return SchemeNil
 eval env (ReservedOpCallExpr op args) = eval env args >>= liftThrows . unwrapList >>= liftThrows . fromJust (lookup op opMap)
 eval env (DefineVarExpr varname expr) = eval env expr >>= defineVar env varname

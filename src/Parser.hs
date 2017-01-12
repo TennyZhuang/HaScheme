@@ -18,6 +18,9 @@ parseList = ListExpr <$> sepBy parseExpr spaces
 parseString :: Parser Expr
 parseString =  fmap (AST.fromList . fmap CharExpr) string
 
+parseSymbol :: Parser Expr
+parseSymbol = fmap SymbolExpr symbol
+
 parseQuoted :: Parser Expr
 parseQuoted = do
   reserved "'"
@@ -52,5 +55,6 @@ parseExpr :: Parser Expr
 parseExpr = parseNumber
         <|> parseBool
         <|> parseQuoted
+        <|> parseSymbol
         <|> try parseDefine
         <|> parseReservedOpCall

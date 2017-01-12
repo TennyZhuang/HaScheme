@@ -4,6 +4,7 @@ data Expr =
   NumberExpr Double |
   BoolExpr Bool |
   CharExpr Char |
+  SymbolExpr String |
   ConsExpr (Expr, Expr) |
   NilExpr |
   ListExpr [Expr] |
