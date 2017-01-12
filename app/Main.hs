@@ -19,3 +19,4 @@ main = do
         Right ast -> case eval ast of
           Left err -> showErr $ "Evaluate Error: " `mappend` show err
           Right val -> showRes $ show val
+    _ -> showErr "Only 0 or 1 argument!"
