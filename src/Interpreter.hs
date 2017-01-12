@@ -19,10 +19,6 @@ instance Show SyntaxError where
 
 type ThrowsError = Either SyntaxError
 
-convert :: Expr -> ThrowsError SchemeValue
-convert (NumberExpr x) = return $ SchemeNumber x
-convert (ListExpr l) = fmap SchemeList (sequence $ fmap convert l)
-
 unwrapNumber :: SchemeValue -> ThrowsError Double
 unwrapNumber (SchemeNumber num) = return num
 unwrapNumber arg = throwError $ TypeMismatch "number" arg
@@ -42,4 +38,6 @@ opMap = [
   ("/", numberNumberOp (/))]
 
 eval :: Expr -> ThrowsError SchemeValue
-eval (ReservedOpCallExpr op args) = convert args >>= unwrapList >>= fromJust (lookup op opMap)
+eval (NumberExpr x) = return $ SchemeNumber x
+eval (ListExpr l) = fmap SchemeList (sequence $ fmap eval l)
+eval (ReservedOpCallExpr op args) = eval args >>= unwrapList >>= fromJust (lookup op opMap)
