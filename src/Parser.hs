@@ -15,6 +15,9 @@ parseBool = fmap BoolExpr bool
 parseList :: Parser Expr
 parseList = ListExpr <$> sepBy parseExpr spaces
 
+parseString :: Parser Expr
+parseString =  fmap (AST.fromList . fmap CharExpr) string
+
 parseQuoted :: Parser Expr
 parseQuoted = do
   reserved "'"

@@ -3,6 +3,7 @@ module AST where
 data Expr =
   NumberExpr Double |
   BoolExpr Bool |
+  CharExpr Char |
   ConsExpr (Expr, Expr) |
   NilExpr |
   ListExpr [Expr] |
