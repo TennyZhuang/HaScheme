@@ -67,6 +67,10 @@ schemeCdr [SchemeCons l] = return $ snd l
 schemeCdr [arg] = throwError $ TypeMismatch "list" arg
 schemeCdr args = throwError $ ArgsNumber 1 args
 
+schemeCons :: [SchemeValue] -> ThrowsError SchemeValue
+schemeCons [v1, v2] = return $ SchemeCons (v1, v2)
+schemeCons args = throwError $ ArgsNumber 1 args
+
 schemeIf :: [SchemeValue] -> ThrowsError SchemeValue
 schemeIf [SchemeBool b, v1, v2] = return $ if b then v1 else v2
 schemeIf [arg, _, _] = throwError $ TypeMismatch "bool" arg
@@ -99,6 +103,7 @@ opMap = [
   ("=", numberBoolOp (==)),
   ("car", schemeCar),
   ("cdr", schemeCdr),
+  ("cons", schemeCons),
   ("if", schemeIf)]
 
 eval :: Expr -> ThrowsError SchemeValue
