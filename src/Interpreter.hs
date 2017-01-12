@@ -8,12 +8,17 @@ import AST
 data SchemeValue =
   SchemeNumber Double |
   SchemeBool Bool |
-  SchemeList [SchemeValue] deriving (Show)
+  SchemeList [SchemeValue]
 
 data SyntaxError =
   ArgsNumber Int [SchemeValue] |
   TypeMismatch String SchemeValue |
   Unknown
+
+instance Show SchemeValue where
+  show (SchemeNumber num) = show num
+  show (SchemeBool b) = if b then "#t" else "#f"
+  show (SchemeList l) = concat ["(", unwords (fmap show l) ,")"]
 
 instance Show SyntaxError where
   show Unknown = "Unknown Error"
