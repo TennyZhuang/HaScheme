@@ -28,6 +28,8 @@ typeOf :: SchemeValue -> String
 typeOf (SchemeNumber _) = "number"
 typeOf (SchemeBool _) = "bool"
 typeOf (SchemeList _) = "list"
+typeOf (SchemeCons _) = "cons"
+typeOf SchemeNil = "nil"
 
 instance Show SyntaxError where
   show (ArgsNumber i args) = concat [
