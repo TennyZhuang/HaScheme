@@ -18,7 +18,13 @@ parseList = ListExpr <$> sepBy parseExpr spaces
 parseQuoted :: Parser Expr
 parseQuoted = do
   reserved "'"
-  parens parseList
+  char '('
+  cars <- sepBy parseExpr spaces
+  cdr <- optionMaybe (char '.' >> spaces >> parseExpr)
+  char ')'
+  return $ case cdr of
+    Nothing -> AST.fromList (cars `mappend` [NilExpr])
+    Just e -> AST.fromList (cars `mappend` [e])
 
 parseReservedOpCall :: Parser Expr
 parseReservedOpCall = do

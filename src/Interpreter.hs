@@ -8,7 +8,9 @@ import AST
 data SchemeValue =
   SchemeNumber Double |
   SchemeBool Bool |
-  SchemeList [SchemeValue]
+  SchemeList [SchemeValue] |
+  SchemeCons (SchemeValue, SchemeValue) |
+  SchemeNil
 
 data SyntaxError =
   ArgsNumber Int [SchemeValue] |
@@ -19,6 +21,8 @@ instance Show SchemeValue where
   show (SchemeNumber num) = show num
   show (SchemeBool b) = if b then "#t" else "#f"
   show (SchemeList l) = concat ["(", unwords (fmap show l) ,")"]
+  show (SchemeCons (l, r)) = concat ["(", show l, " . ", show r, ")"]
+  show SchemeNil = "()"
 
 typeOf :: SchemeValue -> String
 typeOf (SchemeNumber _) = "number"
@@ -54,12 +58,12 @@ schemeNot [arg] = throwError $ TypeMismatch "bool" arg
 schemeNot args = throwError $ ArgsNumber 1 args
 
 schemeCar :: [SchemeValue] -> ThrowsError SchemeValue
-schemeCar [SchemeList l] = return $ head l
+schemeCar [SchemeCons l] = return $ fst l
 schemeCar [arg] = throwError $ TypeMismatch "list" arg
 schemeCar args = throwError $ ArgsNumber 1 args
 
 schemeCdr :: [SchemeValue] -> ThrowsError SchemeValue
-schemeCdr [SchemeList l] = return . SchemeList $ tail l
+schemeCdr [SchemeCons l] = return $ snd l
 schemeCdr [arg] = throwError $ TypeMismatch "list" arg
 schemeCdr args = throwError $ ArgsNumber 1 args
 
@@ -101,4 +105,9 @@ eval :: Expr -> ThrowsError SchemeValue
 eval (NumberExpr x) = return $ SchemeNumber x
 eval (BoolExpr b) = return $ SchemeBool b
 eval (ListExpr l) = fmap SchemeList (sequence $ fmap eval l)
+eval (ConsExpr (l, r)) = do
+  left <- eval l
+  right <- eval r
+  return $ SchemeCons (left, right)
+eval NilExpr = return SchemeNil
 eval (ReservedOpCallExpr op args) = eval args >>= unwrapList >>= fromJust (lookup op opMap)
