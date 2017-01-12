@@ -7,6 +7,7 @@ import AST
 
 data SchemeValue =
   SchemeNumber Double |
+  SchemeBool Bool |
   SchemeList [SchemeValue] deriving (Show)
 
 data SyntaxError =
@@ -23,6 +24,10 @@ unwrapNumber :: SchemeValue -> ThrowsError Double
 unwrapNumber (SchemeNumber num) = return num
 unwrapNumber arg = throwError $ TypeMismatch "number" arg
 
+unwrapBool :: SchemeValue -> ThrowsError Bool
+unwrapBool (SchemeBool b) = return b
+unwrapBool arg = throwError $ TypeMismatch "bool" arg
+
 unwrapList :: SchemeValue -> ThrowsError [SchemeValue]
 unwrapList (SchemeList l) = return l
 unwrapList arg = throwError $ TypeMismatch "list" arg
@@ -30,14 +35,20 @@ unwrapList arg = throwError $ TypeMismatch "list" arg
 numberNumberOp :: (Double -> Double -> Double) -> [SchemeValue] -> ThrowsError SchemeValue
 numberNumberOp f l = fmap (SchemeNumber . foldl1 f) (sequence $ fmap unwrapNumber l)
 
+boolBoolOp :: (Bool -> Bool -> Bool) -> [SchemeValue] -> ThrowsError SchemeValue
+boolBoolOp f l = fmap (SchemeBool . foldl1 f) (sequence $ fmap unwrapBool l)
+
 opMap :: [(String, [SchemeValue] -> ThrowsError SchemeValue)]
 opMap = [
   ("+", numberNumberOp (+)),
   ("-", numberNumberOp (-)),
   ("*", numberNumberOp (*)),
-  ("/", numberNumberOp (/))]
+  ("/", numberNumberOp (/)),
+  ("&&", boolBoolOp (&&)),
+  ("||", boolBoolOp (||))]
 
 eval :: Expr -> ThrowsError SchemeValue
 eval (NumberExpr x) = return $ SchemeNumber x
+eval (BoolExpr b) = return $ SchemeBool b
 eval (ListExpr l) = fmap SchemeList (sequence $ fmap eval l)
 eval (ReservedOpCallExpr op args) = eval args >>= unwrapList >>= fromJust (lookup op opMap)

@@ -34,6 +34,10 @@ number = do
     Left int -> fromInteger int
     Right db -> db
 
+bool :: Parser Bool
+bool = True <$ reserved "#t"
+   <|> False <$ reserved "#f"
+
 symbol :: Parser String
 symbol = Tok.identifier lexer
 

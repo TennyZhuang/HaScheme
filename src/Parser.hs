@@ -9,6 +9,9 @@ import Lexer
 parseNumber :: Parser Expr
 parseNumber = fmap NumberExpr number
 
+parseBool :: Parser Expr
+parseBool = fmap BoolExpr bool
+
 parseList :: Parser Expr
 parseList = ListExpr <$> sepBy parseExpr spaces
 
@@ -23,4 +26,5 @@ parseReservedOpCall = do
 
 parseExpr :: Parser Expr
 parseExpr = parseNumber
+        <|> parseBool
         <|> parseReservedOpCall
