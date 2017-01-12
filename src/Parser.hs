@@ -15,6 +15,11 @@ parseBool = fmap BoolExpr bool
 parseList :: Parser Expr
 parseList = ListExpr <$> sepBy parseExpr spaces
 
+parseQuoted :: Parser Expr
+parseQuoted = do
+  reserved "'"
+  parens parseList
+
 parseReservedOpCall :: Parser Expr
 parseReservedOpCall = do
   char '('
@@ -27,4 +32,5 @@ parseReservedOpCall = do
 parseExpr :: Parser Expr
 parseExpr = parseNumber
         <|> parseBool
+        <|> parseQuoted
         <|> parseReservedOpCall

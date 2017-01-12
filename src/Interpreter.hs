@@ -53,6 +53,16 @@ schemeNot [SchemeBool b] = return . SchemeBool $ not b
 schemeNot [arg] = throwError $ TypeMismatch "bool" arg
 schemeNot args = throwError $ ArgsNumber 1 args
 
+schemeCar :: [SchemeValue] -> ThrowsError SchemeValue
+schemeCar [SchemeList l] = return $ head l
+schemeCar [arg] = throwError $ TypeMismatch "list" arg
+schemeCar args = throwError $ ArgsNumber 1 args
+
+schemeCdr :: [SchemeValue] -> ThrowsError SchemeValue
+schemeCdr [SchemeList l] = return . SchemeList $ tail l
+schemeCdr [arg] = throwError $ TypeMismatch "list" arg
+schemeCdr args = throwError $ ArgsNumber 1 args
+
 numberNumberOp :: (Double -> Double -> Double) -> [SchemeValue] -> ThrowsError SchemeValue
 numberNumberOp f l = fmap (SchemeNumber . foldl1 f) (sequence $ fmap unwrapNumber l)
 
@@ -77,7 +87,9 @@ opMap = [
   ("not", schemeNot),
   ("<", numberBoolOp (<)),
   (">", numberBoolOp (>)),
-  ("=", numberBoolOp (==))]
+  ("=", numberBoolOp (==)),
+  ("car", schemeCar),
+  ("cdr", schemeCdr)]
 
 eval :: Expr -> ThrowsError SchemeValue
 eval (NumberExpr x) = return $ SchemeNumber x
