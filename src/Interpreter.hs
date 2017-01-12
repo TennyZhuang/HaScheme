@@ -32,6 +32,11 @@ unwrapList :: SchemeValue -> ThrowsError [SchemeValue]
 unwrapList (SchemeList l) = return l
 unwrapList arg = throwError $ TypeMismatch "list" arg
 
+schemeNot :: [SchemeValue] -> ThrowsError SchemeValue
+schemeNot [SchemeBool b] = return . SchemeBool $ not b
+schemeNot [arg] = throwError $ TypeMismatch "bool" arg
+schemeNot args = throwError $ ArgsNumber 1 args
+
 numberNumberOp :: (Double -> Double -> Double) -> [SchemeValue] -> ThrowsError SchemeValue
 numberNumberOp f l = fmap (SchemeNumber . foldl1 f) (sequence $ fmap unwrapNumber l)
 
@@ -45,7 +50,8 @@ opMap = [
   ("*", numberNumberOp (*)),
   ("/", numberNumberOp (/)),
   ("&&", boolBoolOp (&&)),
-  ("||", boolBoolOp (||))]
+  ("||", boolBoolOp (||)),
+  ("not", schemeNot)]
 
 eval :: Expr -> ThrowsError SchemeValue
 eval (NumberExpr x) = return $ SchemeNumber x

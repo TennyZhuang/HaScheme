@@ -5,8 +5,9 @@ import Text.Parsec.String (Parser)
 
 import qualified Text.Parsec.Token as Tok
 
-ops = ["+", "-", "*", "/", "mod", "remainder",
-       "<", ">", "=", "/=", "&&", "||"]
+ops = ["+", "-", "*", "/",
+       "<", ">", "=", "/=",
+       "&&", "||", "not"]
 
 lexer :: Tok.TokenParser ()
 lexer = let
