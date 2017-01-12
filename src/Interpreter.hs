@@ -43,6 +43,13 @@ numberNumberOp f l = fmap (SchemeNumber . foldl1 f) (sequence $ fmap unwrapNumbe
 boolBoolOp :: (Bool -> Bool -> Bool) -> [SchemeValue] -> ThrowsError SchemeValue
 boolBoolOp f l = fmap (SchemeBool . foldl1 f) (sequence $ fmap unwrapBool l)
 
+numberBoolOp :: (Double -> Double -> Bool) -> [SchemeValue] -> ThrowsError SchemeValue
+numberBoolOp f [SchemeNumber arg1, SchemeNumber arg2] =
+  return $ SchemeBool (f arg1 arg2)
+numberBoolOp _ [SchemeNumber _, arg2] = throwError $ TypeMismatch "number" arg2
+numberBoolOp _ [arg1, _] = throwError $ TypeMismatch "number" arg1
+numberBoolOp _ args = throwError $ ArgsNumber 2 args
+
 opMap :: [(String, [SchemeValue] -> ThrowsError SchemeValue)]
 opMap = [
   ("+", numberNumberOp (+)),
@@ -51,7 +58,10 @@ opMap = [
   ("/", numberNumberOp (/)),
   ("&&", boolBoolOp (&&)),
   ("||", boolBoolOp (||)),
-  ("not", schemeNot)]
+  ("not", schemeNot),
+  ("<", numberBoolOp (<)),
+  (">", numberBoolOp (>)),
+  ("=", numberBoolOp (==))]
 
 eval :: Expr -> ThrowsError SchemeValue
 eval (NumberExpr x) = return $ SchemeNumber x
