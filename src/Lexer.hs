@@ -8,7 +8,8 @@ import qualified Text.Parsec.Token as Tok
 ops = ["+", "-", "*", "/",
        "<", ">", "=",
        "&&", "||", "not",
-       "car", "cdr", "cons"]
+       "car", "cdr", "cons",
+       "if"]
 
 lexer :: Tok.TokenParser ()
 lexer = let
