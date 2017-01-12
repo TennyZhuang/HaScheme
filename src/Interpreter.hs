@@ -1,7 +1,8 @@
 module Interpreter where
 
 import Control.Monad.Except
-import Data.Maybe (fromJust)
+import Data.Maybe (fromJust, isJust)
+import Data.IORef
 
 import AST
 
@@ -15,6 +16,7 @@ data SchemeValue =
 data SyntaxError =
   ArgsNumber Int [SchemeValue] |
   TypeMismatch String SchemeValue |
+  UnboundVariable String |
   Unknown
 
 instance Show SchemeValue where
@@ -38,9 +40,46 @@ instance Show SyntaxError where
   show (TypeMismatch t arg) = concat [
     "Expect ", t, ", get ", typeOf arg, "\n",
     "Actual arg: ", show arg]
+  show (UnboundVariable varname) = "Unbound Variable: " `mappend` varname
   show Unknown = "Unknown Error"
 
 type ThrowsError = Either SyntaxError
+
+type IOThrowsError = ExceptT SyntaxError IO
+
+type Environment = IORef [(String, IORef SchemeValue)]
+
+liftThrows :: ThrowsError a -> IOThrowsError a
+liftThrows (Left err) = throwError err
+liftThrows (Right val) = return val
+
+nullEnv :: IO Environment
+nullEnv = newIORef []
+
+getVar :: Environment -> String -> IOThrowsError SchemeValue
+getVar envRef varname = do
+  env <- liftIO $ readIORef envRef
+  maybe (throwError $ UnboundVariable varname)
+        (liftIO . readIORef)
+        (lookup varname env)
+
+setVar :: Environment -> String -> SchemeValue -> IOThrowsError SchemeValue
+setVar envRef varname val = do
+  env <- liftIO $ readIORef envRef
+  maybe (throwError $ UnboundVariable varname)
+        (liftIO . (`writeIORef` val))
+        (lookup varname env)
+  return val
+
+defineVar :: Environment -> String -> SchemeValue -> IOThrowsError SchemeValue
+defineVar envRef varname val = do
+  env <- liftIO $ readIORef envRef
+  case lookup varname env of
+    Just _ -> setVar envRef varname val >> return val
+    Nothing -> liftIO $ do
+      valRef <- newIORef val
+      writeIORef envRef ((varname, valRef) : env)
+      return val
 
 unwrapNumber :: SchemeValue -> ThrowsError Double
 unwrapNumber (SchemeNumber num) = return num
