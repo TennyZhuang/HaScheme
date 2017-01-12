@@ -19,8 +19,10 @@ library
                      , AST
                      , Parser
                      , Interpreter
+                     , Repl
   build-depends:       base >= 4.7 && < 5
                      , parsec
+                     , ansi-terminal
                      , mtl == 2.2.1
   default-language:    Haskell2010
 
@@ -31,7 +33,6 @@ executable HaScheme-exe
   build-depends:       base
                      , HaScheme
                      , parsec
-                     , ansi-terminal
   default-language:    Haskell2010
 
 test-suite HaScheme-test
