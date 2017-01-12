@@ -7,7 +7,8 @@ data Expr =
   ConsExpr (Expr, Expr) |
   NilExpr |
   ListExpr [Expr] |
-  ReservedOpCallExpr String Expr deriving (Show)
+  ReservedOpCallExpr String Expr |
+  DefineVarExpr String Expr deriving (Show)
 
 fromList :: [Expr] -> Expr
 fromList = let

@@ -3,6 +3,7 @@ module Repl where
 import System.IO
 import System.Console.ANSI
 import Control.Monad
+import Control.Monad.Except
 import Text.Parsec (parse)
 
 import AST
@@ -27,12 +28,14 @@ showRes res = do
   putStrLn res
   setSGR [Reset]
 
-evalAndPrint :: String -> IO ()
-evalAndPrint expr = case parse parseExpr "Scheme" expr of
+evalAndPrint :: Environment -> String -> IO ()
+evalAndPrint env expr = case parse parseExpr "Scheme" expr of
   Left err -> showErr $ "No match: " `mappend` show err
-  Right ast -> case eval ast of
-    Left err -> showErr $ "Evaluate Error: " `mappend` show err
-    Right val -> showRes $ show val
+  Right ast -> do
+    res <- runExceptT $ eval env ast
+    case res of
+      Left err -> showErr $ show err
+      Right val -> showRes $ show val
 
 until_ :: Monad m => (a -> Bool) -> m a -> (a -> m ()) -> m ()
 until_ pred prompt action = do
@@ -40,4 +43,4 @@ until_ pred prompt action = do
   unless (pred result) $ action result >> until_ pred prompt action
 
 runRepl :: IO ()
-runRepl = until_ (== "quit") (readPrompt "Scheme>>> ") evalAndPrint
+runRepl = nullEnv >>= until_ (== "quit") (readPrompt "Scheme>>> ") . evalAndPrint

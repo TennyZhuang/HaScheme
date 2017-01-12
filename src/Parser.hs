@@ -38,8 +38,19 @@ parseReservedOpCall = do
   char ')'
   return $ ReservedOpCallExpr op args
 
+parseDefine :: Parser Expr
+parseDefine = do
+  char '('
+  reserved "define"
+  spaces
+  varname <- symbol
+  expr <- parseExpr
+  char ')'
+  return $ DefineVarExpr varname expr
+
 parseExpr :: Parser Expr
 parseExpr = parseNumber
         <|> parseBool
         <|> parseQuoted
+        <|> try parseDefine
         <|> parseReservedOpCall

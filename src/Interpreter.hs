@@ -147,13 +147,14 @@ opMap = [
   ("cons", schemeCons),
   ("if", schemeIf)]
 
-eval :: Expr -> ThrowsError SchemeValue
-eval (NumberExpr x) = return $ SchemeNumber x
-eval (BoolExpr b) = return $ SchemeBool b
-eval (ListExpr l) = fmap SchemeList (sequence $ fmap eval l)
-eval (ConsExpr (l, r)) = do
-  left <- eval l
-  right <- eval r
+eval :: Environment -> Expr -> IOThrowsError SchemeValue
+eval _ (NumberExpr x) = return $ SchemeNumber x
+eval _ (BoolExpr b) = return $ SchemeBool b
+eval env (ListExpr l) = fmap SchemeList (sequence $ fmap (eval env) l)
+eval env (ConsExpr (l, r)) = do
+  left <- eval env l
+  right <- eval env r
   return $ SchemeCons (left, right)
-eval NilExpr = return SchemeNil
-eval (ReservedOpCallExpr op args) = eval args >>= unwrapList >>= fromJust (lookup op opMap)
+eval _ NilExpr = return SchemeNil
+eval env (ReservedOpCallExpr op args) = eval env args >>= liftThrows . unwrapList >>= liftThrows . fromJust (lookup op opMap)
+eval env (DefineVarExpr varname expr) = eval env expr >>= defineVar env varname
