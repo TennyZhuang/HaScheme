@@ -22,7 +22,7 @@ main :: IO ()
 main = do
   args <- getArgs
   let expr = head args
-  case parse parseExpr "lisp" expr of
+  case parse parseExpr "Scheme" expr of
     Left err -> showErr $ "No match: " `mappend` show err
     Right ast -> case eval ast of
       Left err -> showErr $ "Evaluate Error: " `mappend` show err
