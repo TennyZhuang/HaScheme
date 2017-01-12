@@ -20,7 +20,18 @@ instance Show SchemeValue where
   show (SchemeBool b) = if b then "#t" else "#f"
   show (SchemeList l) = concat ["(", unwords (fmap show l) ,")"]
 
+typeOf :: SchemeValue -> String
+typeOf (SchemeNumber _) = "number"
+typeOf (SchemeBool _) = "bool"
+typeOf (SchemeList _) = "list"
+
 instance Show SyntaxError where
+  show (ArgsNumber i args) = concat [
+    "Expect ", show i, " args, get ", show $ length args, "\n",
+    "Actual args: ", show args]
+  show (TypeMismatch t arg) = concat [
+    "Expect ", t, ", get ", typeOf arg, "\n",
+    "Actual arg: ", show arg]
   show Unknown = "Unknown Error"
 
 type ThrowsError = Either SyntaxError
