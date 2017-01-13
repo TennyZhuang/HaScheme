@@ -6,6 +6,8 @@ import Text.Parsec.String (Parser)
 import AST
 import Lexer
 
+{-# ANN module "HLint: ignore Reduce duplication" #-}
+
 parseNumber :: Parser Expr
 parseNumber = fmap NumberExpr number
 
