@@ -108,12 +108,32 @@ parseBegin = do
   char ')'
   return $ BeginExpr args
 
+parseWhile :: Parser Expr
+parseWhile = do
+  char '('
+  reserved "while"
+  spaces
+  cond <- parseExpr
+  spaces
+  body <- parseExpr
+  char ')'
+  return . BeginExpr $ ListExpr [
+    DefineVarExpr "`whilerec" (
+      LambdaFuncExpr [] (
+        IfExpr cond (BeginExpr $ ListExpr [
+          body,
+          FuncCallExpr (SymbolExpr "`whilerec") (ListExpr [])
+        ]) cond)
+    ),
+    FuncCallExpr (SymbolExpr "`whilerec") (ListExpr [])]
+
 parseExpr :: Parser Expr
 parseExpr = parseNumber
         <|> parseBool
         <|> parseQuoted
         <|> parseSymbol
         <|> try parseIf
+        <|> try parseWhile
         <|> try parseLambda
         <|> try parseSet
         <|> try parseDefine
