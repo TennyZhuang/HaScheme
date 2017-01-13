@@ -34,6 +34,20 @@ parseQuoted = do
     Nothing -> AST.fromList (cars `mappend` [NilExpr])
     Just e -> AST.fromList (cars `mappend` [e])
 
+parseIf :: Parser Expr
+parseIf = do
+  char '('
+  reserved "if"
+  spaces
+  cond <- parseExpr
+  spaces
+  left <- parseExpr
+  spaces
+  right <- parseExpr
+  spaces
+  char ')'
+  return $ IfExpr cond left right
+
 parseFuncCall :: Parser Expr
 parseFuncCall = do
   char '('
@@ -80,6 +94,7 @@ parseExpr = parseNumber
         <|> parseBool
         <|> parseQuoted
         <|> parseSymbol
+        <|> try parseIf
         <|> try parseLambda
         <|> try parseDefine
         <|> try parseFuncDefine

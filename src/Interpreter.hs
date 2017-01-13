@@ -26,6 +26,12 @@ eval env (ConsExpr (l, r)) = do
   right <- eval env r
   return $ SchemeCons (left, right)
 eval env (SymbolExpr varname) = getVar env varname
+eval env (IfExpr condE leftE rightE) = do
+  cond <- eval env condE
+  condR <- liftThrows $ unwrapBool cond
+  if condR
+    then eval env leftE
+    else eval env rightE
 eval _ NilExpr = return SchemeNil
 eval env (LambdaFuncExpr args body) = return $ SchemeFunc args body env
 eval env (FuncCallExpr caller args) = do

@@ -7,6 +7,7 @@ data Expr =
   SymbolExpr String |
   ConsExpr (Expr, Expr) |
   NilExpr |
+  IfExpr Expr Expr Expr |
   ListExpr [Expr] |
   FuncCallExpr Expr Expr |
   LambdaFuncExpr [String] Expr |
