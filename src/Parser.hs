@@ -77,7 +77,6 @@ parseSet = do
   char ')'
   return $ SetVarExpr varname expr
 
-
 parseLambda :: Parser Expr
 parseLambda = do
   char '('
@@ -100,6 +99,15 @@ parseFuncDefine = do
   char ')'
   return $ DefineVarExpr (head args) (LambdaFuncExpr (tail args) body)
 
+parseBegin :: Parser Expr
+parseBegin = do
+  char '('
+  reserved "begin"
+  spaces
+  args <- parseList
+  char ')'
+  return $ BeginExpr args
+
 parseExpr :: Parser Expr
 parseExpr = parseNumber
         <|> parseBool
@@ -110,4 +118,5 @@ parseExpr = parseNumber
         <|> try parseSet
         <|> try parseDefine
         <|> try parseFuncDefine
+        <|> try parseBegin
         <|> parseFuncCall

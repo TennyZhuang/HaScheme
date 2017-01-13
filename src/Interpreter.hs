@@ -41,3 +41,4 @@ eval env (FuncCallExpr caller args) = do
   apply env func argsL
 eval env (DefineVarExpr varname expr) = eval env expr >>= defineVar env varname
 eval env (SetVarExpr varname expr) = eval env expr >>= setVar env varname
+eval env (BeginExpr exprsE) = last <$> (eval env exprsE >>= (liftThrows . unwrapList))
