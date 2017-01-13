@@ -81,6 +81,16 @@ defineVar envRef varname val = do
       writeIORef envRef ((varname, valRef) : env)
       return val
 
+bindVars :: Environment -> [(String, SchemeValue)] -> IO Environment
+bindVars envRef bindings = let
+  newEnvRefIO = do
+    env <- readIORef envRef
+    newIORef env
+  in do
+    newEnvRef <- newEnvRefIO
+    sequence_ $ fmap (\(varname, val) -> runExceptT $ defineVar newEnvRef varname val) bindings
+    return newEnvRef
+
 unwrapNumber :: SchemeValue -> ThrowsError Double
 unwrapNumber (SchemeNumber num) = return num
 unwrapNumber arg = throwError $ TypeMismatch "number" arg
