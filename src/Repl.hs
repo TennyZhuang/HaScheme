@@ -41,6 +41,16 @@ evalAndPrint env expr = case parse parseExpr "Scheme" expr of
       Left err -> showErr $ show err
       Right val -> showRes $ show val
 
+fromRight :: Either a b -> b
+fromRight (Left _) = error ""
+fromRight (Right v) = v
+
+evalAnyWay :: String -> IO SchemeValue
+evalAnyWay expr = do
+  let ast = fromRight $ parse parseExpr "Scheme" expr
+  env <- builtInEnv
+  unwrapIOThrows $ eval env ast
+
 runRepl :: IO ()
 runRepl = let
   loop :: Environment -> InputT IO ()

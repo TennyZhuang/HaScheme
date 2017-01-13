@@ -57,3 +57,10 @@ instance Show SyntaxError where
 liftThrows :: ThrowsError a -> IOThrowsError a
 liftThrows (Left err) = throwError err
 liftThrows (Right val) = return val
+
+unwrapIOThrows :: IOThrowsError a -> IO a
+unwrapIOThrows ev = do
+  v <- runExceptT ev
+  case v of
+    (Left err) -> error "error"
+    (Right val) -> return val
