@@ -48,12 +48,10 @@ setVar envRef varname val = do
 defineVar :: Environment -> String -> SchemeValue -> IOThrowsError SchemeValue
 defineVar envRef varname val = do
   env <- liftIO $ readIORef envRef
-  case lookup varname env of
-    Just _ -> setVar envRef varname val >> return val
-    Nothing -> liftIO $ do
-      valRef <- newIORef val
-      writeIORef envRef ((varname, valRef) : env)
-      return val
+  liftIO $ do
+    valRef <- newIORef val
+    writeIORef envRef ((varname, valRef) : env)
+    return val
 
 bindVars :: Environment -> [(String, SchemeValue)] -> IO Environment
 bindVars envRef bindings = let
