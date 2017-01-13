@@ -9,6 +9,8 @@ import Text.Parsec (parse)
 import AST
 import Parser
 import Interpreter
+import Interpreter.Define
+import Interpreter.Environment (builtInEnv)
 
 flushStr :: String -> IO ()
 flushStr str = putStr str >> hFlush stdout

@@ -19,6 +19,9 @@ library
                      , AST
                      , Parser
                      , Interpreter
+                     , Interpreter.Define
+                     , Interpreter.Environment
+                     , Interpreter.Operand
                      , Repl
   build-depends:       base >= 4.7 && < 5
                      , parsec
