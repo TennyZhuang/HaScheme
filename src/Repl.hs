@@ -7,6 +7,7 @@ import Control.Monad
 import Control.Monad.Except
 import Text.Parsec (parse)
 import System.Console.Haskeline
+import System.Console.Haskeline.History (historyLines)
 
 import AST
 import Parser
@@ -26,6 +27,11 @@ showRes res = do
   putStrLn res
   setSGR [Reset]
 
+showAST :: String -> String
+showAST expr = case parse parseExpr "Scheme" expr of
+  Left err -> "No match: " `mappend` show err
+  Right ast -> show ast
+
 evalAndPrint :: Environment -> String -> IO ()
 evalAndPrint env expr = case parse parseExpr "Scheme" expr of
   Left err -> showErr $ "No match: " `mappend` show err
@@ -43,6 +49,9 @@ runRepl = let
     case minput of
       Nothing -> return ()
       Just ":q" -> liftIO exitSuccess
+      Just ":t" -> do
+        history <- getHistory
+        outputStrLn . showAST . head . tail $ historyLines history -- Error handler
       Just input -> liftIO $ evalAndPrint env input
     loop env
   in runInputT defaultSettings (liftIO builtInEnv >>= loop)
