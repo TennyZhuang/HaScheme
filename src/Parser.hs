@@ -37,7 +37,7 @@ parseQuoted = do
 parseFuncCall :: Parser Expr
 parseFuncCall = do
   char '('
-  caller <- parseSymbol <|> parseLambda
+  caller <- parseExpr
   spaces
   args <- parseList
   char ')'
