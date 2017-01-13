@@ -62,6 +62,17 @@ parseLambda = do
   char ')'
   return $ LambdaFuncExpr args body
 
+parseFuncDefine :: Parser Expr
+parseFuncDefine = do
+  char '('
+  reserved "define"
+  spaces
+  args <- parens (symbol `sepBy` spaces)
+  spaces
+  body <- parseExpr
+  char ')'
+  return $ DefineVarExpr (head args) (LambdaFuncExpr (tail args) body)
+
 parseExpr :: Parser Expr
 parseExpr = parseNumber
         <|> parseBool
@@ -69,4 +80,5 @@ parseExpr = parseNumber
         <|> parseSymbol
         <|> try parseLambda
         <|> try parseDefine
+        <|> try parseFuncDefine
         <|> parseFuncCall
