@@ -32,14 +32,14 @@ parseQuoted = do
     Nothing -> AST.fromList (cars `mappend` [NilExpr])
     Just e -> AST.fromList (cars `mappend` [e])
 
-parseReservedOpCall :: Parser Expr
-parseReservedOpCall = do
+parseFuncCall :: Parser Expr
+parseFuncCall = do
   char '('
-  op <- reservedOp
+  caller <- parseSymbol <|> parseLambda
   spaces
   args <- parseList
   char ')'
-  return $ ReservedOpCallExpr op args
+  return $ FuncCallExpr caller args
 
 parseDefine :: Parser Expr
 parseDefine = do
@@ -69,4 +69,4 @@ parseExpr = parseNumber
         <|> parseSymbol
         <|> try parseLambda
         <|> try parseDefine
-        <|> parseReservedOpCall
+        <|> parseFuncCall

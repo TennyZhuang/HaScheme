@@ -43,4 +43,4 @@ until_ pred prompt action = do
   unless (pred result) $ action result >> until_ pred prompt action
 
 runRepl :: IO ()
-runRepl = nullEnv >>= until_ (== "quit") (readPrompt "Scheme>>> ") . evalAndPrint
+runRepl = builtInEnv >>= until_ (== "quit") (readPrompt "Scheme>>> ") . evalAndPrint

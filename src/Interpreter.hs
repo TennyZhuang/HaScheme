@@ -11,6 +11,8 @@ data SchemeValue =
   SchemeBool Bool |
   SchemeList [SchemeValue] |
   SchemeCons (SchemeValue, SchemeValue) |
+  SchemeBuiltInFunc ([SchemeValue] -> ThrowsError SchemeValue) |
+  SchemeFunc [String] Expr Environment |
   SchemeNil
 
 data SyntaxError =
@@ -24,6 +26,8 @@ instance Show SchemeValue where
   show (SchemeBool b) = if b then "#t" else "#f"
   show (SchemeList l) = concat ["(", unwords (fmap show l) ,")"]
   show (SchemeCons (l, r)) = concat ["(", show l, " . ", show r, ")"]
+  show (SchemeBuiltInFunc _) = "build-in"
+  show (SchemeFunc args _ _) = concat ["lambda (", unwords args, ")"]
   show SchemeNil = "()"
 
 typeOf :: SchemeValue -> String
@@ -31,6 +35,8 @@ typeOf (SchemeNumber _) = "number"
 typeOf (SchemeBool _) = "bool"
 typeOf (SchemeList _) = "list"
 typeOf (SchemeCons _) = "cons"
+typeOf (SchemeBuiltInFunc _) = "function"
+typeOf SchemeFunc {} = "function"
 typeOf SchemeNil = "nil"
 
 instance Show SyntaxError where
@@ -55,6 +61,11 @@ liftThrows (Right val) = return val
 
 nullEnv :: IO Environment
 nullEnv = newIORef []
+
+builtInEnv :: IO Environment
+builtInEnv = do
+  env <- nullEnv
+  bindVars env ((fmap . fmap) SchemeBuiltInFunc opMap)
 
 getVar :: Environment -> String -> IOThrowsError SchemeValue
 getVar envRef varname = do
@@ -157,6 +168,9 @@ opMap = [
   ("cons", schemeCons),
   ("if", schemeIf)]
 
+apply :: Environment -> SchemeValue -> [SchemeValue] -> IOThrowsError SchemeValue
+apply _ (SchemeBuiltInFunc f) args = liftThrows $ f args
+
 eval :: Environment -> Expr -> IOThrowsError SchemeValue
 eval _ (NumberExpr x) = return $ SchemeNumber x
 eval _ (BoolExpr b) = return $ SchemeBool b
@@ -167,5 +181,10 @@ eval env (ConsExpr (l, r)) = do
   return $ SchemeCons (left, right)
 eval env (SymbolExpr varname) = getVar env varname
 eval _ NilExpr = return SchemeNil
-eval env (ReservedOpCallExpr op args) = eval env args >>= liftThrows . unwrapList >>= liftThrows . fromJust (lookup op opMap)
+eval env (LambdaFuncExpr args body) = return $ SchemeFunc args body env
+eval env (FuncCallExpr caller args) = do
+  func <- eval env caller
+  argsV <- eval env args
+  argsL <- liftThrows $ unwrapList argsV
+  apply env func argsL
 eval env (DefineVarExpr varname expr) = eval env expr >>= defineVar env varname

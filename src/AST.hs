@@ -8,7 +8,7 @@ data Expr =
   ConsExpr (Expr, Expr) |
   NilExpr |
   ListExpr [Expr] |
-  ReservedOpCallExpr String Expr |
+  FuncCallExpr Expr Expr |
   LambdaFuncExpr [String] Expr |
   DefineVarExpr String Expr deriving (Show)
 

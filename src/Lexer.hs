@@ -2,29 +2,22 @@ module Lexer where
 
 import Text.Parsec hiding (string, spaces)
 import Text.Parsec.String (Parser)
+import Text.Parsec.Language (emptyDef)
 
 import qualified Text.Parsec.Token as Tok
-
-ops = ["+", "-", "*", "/",
-       "<", ">", "=",
-       "&&", "||", "not",
-       "car", "cdr", "cons",
-       "if"]
 
 lexer :: Tok.TokenParser ()
 lexer = let
   names = ["\'", "lambda", "define", "let", "set!", "#t", "#f"]
   symbolLetter = oneOf "!#$%&|*+-/:<=>?@^_~"
-  def = Tok.LanguageDef {
+  def = emptyDef {
     Tok.commentStart = "#|",
     Tok.commentEnd = "|#",
     Tok.commentLine = ";",
     Tok.nestedComments = False,
     Tok.identStart = symbolLetter <|> letter,
     Tok.identLetter = symbolLetter <|> digit <|> letter,
-    Tok.opStart = oneOf $ fmap head ops,
-    Tok.opLetter = oneOf $ concat ops,
-    Tok.reservedOpNames = ops,
+    Tok.reservedOpNames = [],
     Tok.reservedNames = names,
     Tok.caseSensitive = True
   }
@@ -53,9 +46,6 @@ string = do
 
 reserved :: String -> Parser ()
 reserved = Tok.reserved lexer
-
-reservedOp :: Parser String
-reservedOp = choice $ fmap (\op -> fmap (const op) (Tok.reservedOp lexer op)) ops
 
 parens :: Parser a -> Parser a
 parens = Tok.parens lexer
