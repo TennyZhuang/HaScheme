@@ -9,6 +9,7 @@ data Expr =
   NilExpr |
   ListExpr [Expr] |
   ReservedOpCallExpr String Expr |
+  LambdaFuncExpr [String] Expr |
   DefineVarExpr String Expr deriving (Show)
 
 fromList :: [Expr] -> Expr
