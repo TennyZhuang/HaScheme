@@ -11,7 +11,8 @@ data Expr =
   ListExpr [Expr] |
   FuncCallExpr Expr Expr |
   LambdaFuncExpr [String] Expr |
-  DefineVarExpr String Expr deriving (Show)
+  DefineVarExpr String Expr |
+  SetVarExpr String Expr deriving (Show)
 
 fromList :: [Expr] -> Expr
 fromList = let

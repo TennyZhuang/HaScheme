@@ -67,6 +67,17 @@ parseDefine = do
   char ')'
   return $ DefineVarExpr varname expr
 
+parseSet :: Parser Expr
+parseSet = do
+  char '('
+  reserved "set!"
+  spaces
+  varname <- symbol
+  expr <- parseExpr
+  char ')'
+  return $ SetVarExpr varname expr
+
+
 parseLambda :: Parser Expr
 parseLambda = do
   char '('
@@ -96,6 +107,7 @@ parseExpr = parseNumber
         <|> parseSymbol
         <|> try parseIf
         <|> try parseLambda
+        <|> try parseSet
         <|> try parseDefine
         <|> try parseFuncDefine
         <|> parseFuncCall

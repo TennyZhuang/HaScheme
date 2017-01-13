@@ -40,3 +40,4 @@ eval env (FuncCallExpr caller args) = do
   argsL <- liftThrows $ unwrapList argsV
   apply env func argsL
 eval env (DefineVarExpr varname expr) = eval env expr >>= defineVar env varname
+eval env (SetVarExpr varname expr) = eval env expr >>= setVar env varname
