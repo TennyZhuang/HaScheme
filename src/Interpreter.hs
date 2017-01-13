@@ -170,6 +170,12 @@ opMap = [
 
 apply :: Environment -> SchemeValue -> [SchemeValue] -> IOThrowsError SchemeValue
 apply _ (SchemeBuiltInFunc f) args = liftThrows $ f args
+apply envRef (SchemeFunc argnames body closure) args =
+  if length args /= length argnames
+    then throwError $ ArgsNumber (length argnames) args
+    else do
+      newEnv <- liftIO . bindVars closure $ zip argnames args
+      eval newEnv body
 
 eval :: Environment -> Expr -> IOThrowsError SchemeValue
 eval _ (NumberExpr x) = return $ SchemeNumber x
