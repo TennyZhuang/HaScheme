@@ -2,6 +2,7 @@ module Repl where
 
 import System.IO
 import System.Console.ANSI
+import System.Exit (exitSuccess)
 import Control.Monad
 import Control.Monad.Except
 import Text.Parsec (parse)
@@ -41,7 +42,7 @@ runRepl = let
     minput <- getInputLine "Scheme >>> "
     case minput of
       Nothing -> return ()
-      Just ":q" -> return ()
+      Just ":q" -> liftIO exitSuccess
       Just input -> liftIO $ evalAndPrint env input
     loop env
   in runInputT defaultSettings (liftIO builtInEnv >>= loop)
