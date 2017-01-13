@@ -5,18 +5,13 @@ import System.Console.ANSI
 import Control.Monad
 import Control.Monad.Except
 import Text.Parsec (parse)
+import System.Console.Haskeline
 
 import AST
 import Parser
 import Interpreter
 import Interpreter.Define
 import Interpreter.Environment (builtInEnv)
-
-flushStr :: String -> IO ()
-flushStr str = putStr str >> hFlush stdout
-
-readPrompt :: String -> IO String
-readPrompt prompt = flushStr prompt >> getLine
 
 showErr :: String -> IO ()
 showErr err = do
@@ -39,10 +34,14 @@ evalAndPrint env expr = case parse parseExpr "Scheme" expr of
       Left err -> showErr $ show err
       Right val -> showRes $ show val
 
-until_ :: Monad m => (a -> Bool) -> m a -> (a -> m ()) -> m ()
-until_ pred prompt action = do
-  result <- prompt
-  unless (pred result) $ action result >> until_ pred prompt action
-
 runRepl :: IO ()
-runRepl = builtInEnv >>= until_ (== "quit") (readPrompt "Scheme>>> ") . evalAndPrint
+runRepl = let
+  loop :: Environment -> InputT IO ()
+  loop env = do
+    minput <- getInputLine "Scheme >>> "
+    case minput of
+      Nothing -> return ()
+      Just ":q" -> return ()
+      Just input -> liftIO $ evalAndPrint env input
+    loop env
+  in runInputT defaultSettings (liftIO builtInEnv >>= loop)

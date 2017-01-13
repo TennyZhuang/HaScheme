@@ -27,6 +27,7 @@ library
                      , parsec
                      , ansi-terminal
                      , mtl == 2.2.1
+                     , haskeline
   default-language:    Haskell2010
 
 executable HaScheme-exe
