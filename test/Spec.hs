@@ -29,9 +29,27 @@ prop_mul (Positive x) (Positive y) = monadicIO $ do
   res <- liftIO . unwrapIOThrows . liftThrows $ unwrapNumber value
   assert (res == x * y)
 
+prop_bool_not :: Property
+prop_bool_not = monadicIO $ do
+  value <- run $ evalAnyWay "(not #f)"
+  res <- liftIO . unwrapIOThrows . liftThrows $ unwrapBool value
+  assert res
+
+prop_bool_and :: Property
+prop_bool_and = monadicIO $ do
+  value <- run $ evalAnyWay "(and #t #f)"
+  res <- liftIO . unwrapIOThrows . liftThrows $ unwrapBool value
+  assert $ not res
+
+prop_bool_or :: Property
+prop_bool_or = monadicIO $ do
+  value <- run $ evalAnyWay "(or #t #f)"
+  res <- liftIO . unwrapIOThrows . liftThrows $ unwrapBool value
+  assert res
+
 prop_higherOrder :: SmallInt -> Property
 prop_higherOrder n = monadicIO $ do
-  value <- run $ evalAnyWay $ concat ["(((lambda (a) ((lambda (b) (b b)) (lambda (b) (a (lambda (c) ((b b) c)))))) (lambda (f) (lambda (n) (if (&& (< (- n 1) 0.1) (< (- 1 n) 0.1)) 1 (* n (f (- n 1))))))) ", show (unWrap n), ")"]
+  value <- run $ evalAnyWay $ concat ["(((lambda (a) ((lambda (b) (b b)) (lambda (b) (a (lambda (c) ((b b) c)))))) (lambda (f) (lambda (n) (if (and (< (- n 1) 0.1) (< (- 1 n) 0.1)) 1 (* n (f (- n 1))))))) ", show (unWrap n), ")"]
   res <- liftIO . unwrapIOThrows . liftThrows $ unwrapNumber value
   assert (res == fromInteger (factorial (unWrap n))) where
     factorial n = if n < 2 then 1 else n * factorial (n - 1)
@@ -46,5 +64,8 @@ main = do
   quickCheck prop_number
   quickCheck prop_add
   quickCheck prop_mul
+  quickCheck prop_bool_not
+  quickCheck prop_bool_and
+  quickCheck prop_bool_or
   quickCheck prop_higherOrder
   quickCheck prop_scope
