@@ -3,7 +3,7 @@ module Repl where
 import System.IO
 import System.Console.ANSI
 import System.Exit (exitSuccess)
-import Data.List (isPrefixOf)
+import Data.List (isPrefixOf, find)
 import Control.Monad
 import Control.Monad.Except
 import Text.Parsec (parse)
@@ -130,7 +130,13 @@ runRepl = let
       Just ":q" -> liftIO exitSuccess
       Just ":t" -> do
         history <- getHistory
-        showAST . head . tail $ historyLines history -- Error handler
-      Just input -> liftIO $ evalAndPrint env input
+        let l = tail $ historyLines history
+        let lastInput = find (isPrefixOf ":i") l
+        case lastInput of
+          Just x -> showAST (drop 2 x)
+          Nothing -> liftIO $ showErr "No last command"
+      Just input -> if ":i" `isPrefixOf` input
+        then liftIO $ evalAndPrint env (drop 2 input)
+        else liftIO $ showErr "Please start with :i, :t, :q or :h"
     loop env
   in runInputT (setComplete completeRule defaultSettings) (liftIO builtInEnv >>= loop)
