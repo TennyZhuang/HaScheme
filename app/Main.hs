@@ -25,8 +25,7 @@ handleExpr inh onh = do
   expr <- hIsEOF inh
   unless expr $ do
     expr <- hGetLine inh
-    result <- evalAnyWay expr
-    hPrint onh result
+    hEvalToIO expr onh
     handleExpr inh onh
 
 astToFile :: String -> String -> IO ()

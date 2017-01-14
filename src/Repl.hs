@@ -107,6 +107,16 @@ evalAnyWay expr = do
   env <- builtInEnv
   unwrapIOThrows $ eval env ast
 
+hEvalToIO :: String -> Handle -> IO ()
+hEvalToIO expr handler = case parse parseExpr "Scheme" expr of
+  Left err -> hPrint handler  $ "No match: " `mappend` show err
+  Right ast -> do
+    env <- builtInEnv
+    res <- runExceptT $ eval env ast
+    case res of
+      Left err -> hPrint handler $ show err
+      Right val -> hPrint handler $ show val
+
 wordsToComplete :: [String]
 wordsToComplete = fmap fst opMap `mappend` reservedNames
 
