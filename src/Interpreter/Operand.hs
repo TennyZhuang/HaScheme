@@ -42,9 +42,9 @@ schemeIf [arg, _, _] = throwError $ TypeMismatch "bool" arg
 schemeIf args = throwError $ ArgsNumber 3 args
 
 schemeVectorRef :: [SchemeValue] -> ThrowsError SchemeValue
-schemeVectorRef [SchemeArray a, SchemeNumber idxD]
+schemeVectorRef [aV@(SchemeArray a), SchemeNumber idxD]
   | idxI >= 0 && idxI < length a = return $ a ! idxI
-  | otherwise = throwError Unknown
+  | otherwise = throwError $ IndexOutOfRange aV idxI
   where idxI = round idxD
 
 numberNumberOp :: (Double -> Double -> Double) -> [SchemeValue] -> ThrowsError SchemeValue

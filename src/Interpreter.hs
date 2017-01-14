@@ -34,7 +34,9 @@ eval env (UpdateVectorExpr aE idxE valE) = do
   idxD <- liftThrows $ unwrapNumber idxV
   val <- eval env valE
   let idxI = round idxD
-  return . SchemeArray $ aA // [(idxI, val)]
+  if idxI >= 0 && idxI < length aA
+    then return . SchemeArray $ aA // [(idxI, val)]
+    else throwError $ IndexOutOfRange aV idxI
 eval env (ListExpr l) = fmap SchemeList (sequence $ fmap (eval env) l)
 eval env (ConsExpr (l, r)) = do
   left <- eval env l

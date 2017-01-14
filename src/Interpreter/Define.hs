@@ -45,6 +45,7 @@ data SyntaxError =
   ArgsNumber Int [SchemeValue] |
   TypeMismatch String SchemeValue |
   UnboundVariable String |
+  IndexOutOfRange SchemeValue Int |
   Unknown
 
 type ThrowsError = Either SyntaxError
@@ -59,6 +60,8 @@ instance Show SyntaxError where
     "Expect ", t, ", get ", typeOf arg, "\n",
     "Actual arg: ", show arg]
   show (UnboundVariable varname) = "Unbound Variable: " `mappend` varname
+  show (IndexOutOfRange (SchemeArray a) idx) = concat [
+    "Index out of range in array ", show a, "\nActual index: ", show idx]
   show Unknown = "Unknown Error"
 
 liftThrows :: ThrowsError a -> IOThrowsError a
