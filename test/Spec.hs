@@ -36,8 +36,15 @@ prop_higherOrder n = monadicIO $ do
   assert (res == fromInteger (factorial (unWrap n))) where
     factorial n = if n < 2 then 1 else n * factorial (n - 1)
 
+prop_scope :: Positive Integer -> Property
+prop_scope (Positive n) = monadicIO $ do
+  value <- run $ evalAnyWay $ concat ["(begin (define x ", show n, ") (define (f x) (set! x 4)) (f 10) x))"]
+  res <- liftIO . unwrapIOThrows . liftThrows $ unwrapNumber value
+  assert (res == fromInteger n)
+
 main = do
   quickCheck prop_number
   quickCheck prop_add
   quickCheck prop_mul
   quickCheck prop_higherOrder
+  quickCheck prop_scope
