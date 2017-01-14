@@ -21,6 +21,7 @@ apply envRef (SchemeFunc argnames body closure) args =
     else do
       newEnv <- liftIO . bindVars closure $ zip argnames args
       eval newEnv body
+apply _ arg _ = throwError $ TypeMismatch "function" arg
 
 schemeLoad :: Environment -> String -> IOThrowsError SchemeValue
 schemeLoad env filename = do
