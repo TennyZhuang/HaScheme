@@ -49,6 +49,8 @@ data SyntaxError =
   TypeMismatch String SchemeValue |
   UnboundVariable String |
   IndexOutOfRange SchemeValue Int |
+  OpenFileFail String |
+  ParseFileFail String |
   Unknown
 
 type ThrowsError = Either SyntaxError
@@ -65,6 +67,10 @@ instance Show SyntaxError where
   show (UnboundVariable varname) = "Unbound Variable: " `mappend` varname
   show (IndexOutOfRange (SchemeArray a) idx) = concat [
     "Index out of range in array ", show a, "\nActual index: ", show idx]
+  show (OpenFileFail filename) = concat [
+    "Open file ", filename, " failed"]
+  show (ParseFileFail filename) = concat [
+    "Parse file ", filename, " failed"]
   show Unknown = "Unknown Error"
 
 liftThrows :: ThrowsError a -> IOThrowsError a

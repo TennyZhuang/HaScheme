@@ -26,9 +26,9 @@ apply _ arg _ = throwError $ TypeMismatch "function" arg
 schemeLoad :: Environment -> String -> IOThrowsError SchemeValue
 schemeLoad env filename = do
   inh <- liftIO $ openFile filename ReadMode
-  expr <- liftIO $ hGetContents inh
+  expr <- liftIO (hGetContents inh) `catchError` (const . throwError $ OpenFileFail filename)
   res <- case parse parseTopLevel "Scheme" expr of
-    Left err -> throwError Unknown
+    Left err -> throwError $ ParseFileFail filename
     Right ast -> eval env ast
   liftIO $ hClose inh
   return res
