@@ -8,7 +8,7 @@ import qualified Text.Parsec.Token as Tok
 
 lexer :: Tok.TokenParser ()
 lexer = let
-  names = ["\'", "lambda", "define", "begin", "while", "let", "if", "set!", "#t", "#f"]
+  names = ["\'", "lambda", "define", "begin", "while", "let", "if", "set!", "make-vector", "#t", "#f"]
   symbolLetter = oneOf "!#$%&|*+-/:<=>?@^_~"
   def = emptyDef {
     Tok.commentStart = "#|",

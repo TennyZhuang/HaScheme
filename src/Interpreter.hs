@@ -1,6 +1,7 @@
 module Interpreter where
 
 import Data.IORef
+import Data.Array
 import Control.Monad.Except
 
 import AST
@@ -21,6 +22,11 @@ eval :: Environment -> Expr -> IOThrowsError SchemeValue
 eval _ (NumberExpr x) = return $ SchemeNumber x
 eval _ (BoolExpr b) = return $ SchemeBool b
 eval _ (CharExpr c) = return $ SchemeChar c
+eval env (VectorInitExpr lengthE) = do
+  lengthV <- eval env lengthE
+  lengthD <- liftThrows $ unwrapNumber lengthV
+  let lengthI = round lengthD
+  return . SchemeArray $ listArray (0, lengthI - 1) (replicate lengthI SchemeNil)
 eval env (ListExpr l) = fmap SchemeList (sequence $ fmap (eval env) l)
 eval env (ConsExpr (l, r)) = do
   left <- eval env l

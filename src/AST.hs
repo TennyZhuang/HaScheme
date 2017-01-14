@@ -13,6 +13,7 @@ data Expr =
   LambdaFuncExpr [String] Expr |
   DefineVarExpr String Expr |
   SetVarExpr String Expr |
+  VectorInitExpr Expr |
   BeginExpr Expr deriving (Show)
 
 fromList :: [Expr] -> Expr

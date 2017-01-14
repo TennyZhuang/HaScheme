@@ -127,6 +127,17 @@ parseWhile = do
     ),
     FuncCallExpr (SymbolExpr "`whilerec") (ListExpr [])]
 
+parseMakeVector :: Parser Expr
+parseMakeVector = do
+  char '('
+  reserved "make-vector"
+  spaces
+  varname <- symbol
+  spaces
+  length <- parseExpr
+  char ')'
+  return $ DefineVarExpr varname (VectorInitExpr length)
+
 parseExpr :: Parser Expr
 parseExpr = parseNumber
         <|> parseBool
@@ -134,6 +145,7 @@ parseExpr = parseNumber
         <|> parseSymbol
         <|> parseString
         <|> try parseIf
+        <|> try parseMakeVector
         <|> try parseWhile
         <|> try parseLambda
         <|> try parseSet
