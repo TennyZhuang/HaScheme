@@ -27,6 +27,14 @@ eval env (VectorInitExpr lengthE) = do
   lengthD <- liftThrows $ unwrapNumber lengthV
   let lengthI = round lengthD
   return . SchemeArray $ listArray (0, lengthI - 1) (replicate lengthI SchemeNil)
+eval env (UpdateVectorExpr aE idxE valE) = do
+  aV <- eval env aE
+  let aA = unwrapArray aV
+  idxV <- eval env idxE
+  idxD <- liftThrows $ unwrapNumber idxV
+  val <- eval env valE
+  let idxI = round idxD
+  return . SchemeArray $ aA // [(idxI, val)]
 eval env (ListExpr l) = fmap SchemeList (sequence $ fmap (eval env) l)
 eval env (ConsExpr (l, r)) = do
   left <- eval env l

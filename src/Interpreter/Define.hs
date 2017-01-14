@@ -12,7 +12,7 @@ data SchemeValue =
   SchemeNumber Double |
   SchemeBool Bool |
   SchemeChar Char |
-  SchemeArray (Array Int SchemeValue) |
+  SchemeArray { unwrapArray :: Array Int SchemeValue } |
   SchemeList [SchemeValue] |
   SchemeCons (SchemeValue, SchemeValue) |
   SchemeBuiltInFunc ([SchemeValue] -> ThrowsError SchemeValue) |

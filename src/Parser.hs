@@ -138,6 +138,19 @@ parseMakeVector = do
   char ')'
   return $ DefineVarExpr varname (VectorInitExpr length)
 
+parseVectorSet :: Parser Expr
+parseVectorSet = do
+  char '('
+  reserved "vector-set!"
+  spaces
+  a <- symbol
+  spaces
+  idx <- parseExpr
+  spaces
+  val <- parseExpr
+  char ')'
+  return $ SetVarExpr a (UpdateVectorExpr (SymbolExpr a) idx val)
+
 parseExpr :: Parser Expr
 parseExpr = parseNumber
         <|> parseBool
@@ -146,6 +159,7 @@ parseExpr = parseNumber
         <|> parseString
         <|> try parseIf
         <|> try parseMakeVector
+        <|> try parseVectorSet
         <|> try parseWhile
         <|> try parseLambda
         <|> try parseSet

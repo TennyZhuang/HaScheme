@@ -14,6 +14,7 @@ data Expr =
   DefineVarExpr String Expr |
   SetVarExpr String Expr |
   VectorInitExpr Expr |
+  UpdateVectorExpr Expr Expr Expr |
   BeginExpr Expr deriving (Show)
 
 fromList :: [Expr] -> Expr
