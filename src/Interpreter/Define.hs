@@ -10,6 +10,7 @@ type Environment = IORef [(String, IORef SchemeValue)]
 data SchemeValue =
   SchemeNumber Double |
   SchemeBool Bool |
+  SchemeChar Char |
   SchemeList [SchemeValue] |
   SchemeCons (SchemeValue, SchemeValue) |
   SchemeBuiltInFunc ([SchemeValue] -> ThrowsError SchemeValue) |
@@ -19,6 +20,7 @@ data SchemeValue =
 instance Show SchemeValue where
   show (SchemeNumber num) = show num
   show (SchemeBool b) = if b then "#t" else "#f"
+  show (SchemeChar c) = show c
   show (SchemeList l) = concat ["(", unwords (fmap show l) ,")"]
   show (SchemeCons (l, r)) = concat ["(", show l, " . ", show r, ")"]
   show (SchemeBuiltInFunc _) = "build-in"
@@ -28,6 +30,7 @@ instance Show SchemeValue where
 typeOf :: SchemeValue -> String
 typeOf (SchemeNumber _) = "number"
 typeOf (SchemeBool _) = "bool"
+typeOf (SchemeChar _) = "char"
 typeOf (SchemeList _) = "list"
 typeOf (SchemeCons _) = "cons"
 typeOf (SchemeBuiltInFunc _) = "function"

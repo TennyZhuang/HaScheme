@@ -18,7 +18,7 @@ parseList :: Parser Expr
 parseList = ListExpr <$> sepBy parseExpr spaces
 
 parseString :: Parser Expr
-parseString =  fmap (AST.fromList . fmap CharExpr) string
+parseString =  fmap (AST.fromList . (++ [NilExpr]) . fmap CharExpr) string
 
 parseSymbol :: Parser Expr
 parseSymbol = fmap SymbolExpr symbol
@@ -132,6 +132,7 @@ parseExpr = parseNumber
         <|> parseBool
         <|> parseQuoted
         <|> parseSymbol
+        <|> parseString
         <|> try parseIf
         <|> try parseWhile
         <|> try parseLambda

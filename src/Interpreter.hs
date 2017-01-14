@@ -20,6 +20,7 @@ apply envRef (SchemeFunc argnames body closure) args =
 eval :: Environment -> Expr -> IOThrowsError SchemeValue
 eval _ (NumberExpr x) = return $ SchemeNumber x
 eval _ (BoolExpr b) = return $ SchemeBool b
+eval _ (CharExpr c) = return $ SchemeChar c
 eval env (ListExpr l) = fmap SchemeList (sequence $ fmap (eval env) l)
 eval env (ConsExpr (l, r)) = do
   left <- eval env l
