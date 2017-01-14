@@ -60,6 +60,12 @@ prop_scope (Positive n) = monadicIO $ do
   res <- liftIO . unwrapIOThrows . liftThrows $ unwrapNumber value
   assert (res == fromInteger n)
 
+prop_while :: Positive Integer -> Property
+prop_while (Positive n) = monadicIO $ do
+  value <- run $ evalAnyWay $ concat ["(begin (define x 0) (while (< x ", show n ,") (set! x (+ x 1))) x)"]
+  res <- liftIO . unwrapIOThrows . liftThrows $ unwrapNumber value
+  assert (res == fromInteger n)
+
 main = do
   quickCheck prop_number
   quickCheck prop_add
@@ -69,3 +75,4 @@ main = do
   quickCheck prop_bool_or
   quickCheck prop_higherOrder
   quickCheck prop_scope
+  quickCheck prop_while
