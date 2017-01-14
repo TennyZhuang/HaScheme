@@ -2,10 +2,17 @@ language: haskell
 ghc: 8.0
 cache:
   directories:
+    - $HOME/.ghc
     - $HOME/.cabal
+    - $HOME/.stack
 before_install:
   - cabal install happy
   - export PATH=$HOME/.cabal/bin:$PATH
+  - mkdir -p ~/.local/bin
+  - export PATH=$HOME/.local/bin:$PATH
+  - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
 install:
   - cabal install hlint
-script: hlint app src
+script:
+  - hlint app src
+  - stack --install-ghc test
