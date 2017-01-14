@@ -3,17 +3,20 @@ module Repl where
 import System.IO
 import System.Console.ANSI
 import System.Exit (exitSuccess)
+import Data.List (isPrefixOf)
 import Control.Monad
 import Control.Monad.Except
 import Text.Parsec (parse)
 import System.Console.Haskeline
 import System.Console.Haskeline.History (historyLines)
+import System.Console.Haskeline.Completion
 
+import Lexer (reservedNames)
 import AST
 import Parser
 import Interpreter
 import Interpreter.Define
-import Interpreter.Environment (builtInEnv)
+import Interpreter.Environment (builtInEnv, opMap)
 
 showErr :: String -> IO ()
 showErr err = do
@@ -104,6 +107,19 @@ evalAnyWay expr = do
   env <- builtInEnv
   unwrapIOThrows $ eval env ast
 
+wordsToComplete :: [String]
+wordsToComplete = fmap fst opMap `mappend` reservedNames
+
+completeAction :: String -> [Completion]
+completeAction s = let
+  filteredWords = filter (isPrefixOf s) wordsToComplete
+  replaceWord str = if length filteredWords == 1 then (str, True) else (s, False)
+  createCompletion str = let (t1, t2) = replaceWord str in Completion t1 str t2
+  in fmap createCompletion filteredWords
+
+completeRule :: CompletionFunc IO
+completeRule = completeWord Nothing " ()\n\t\b" (return . completeAction)
+
 runRepl :: IO ()
 runRepl = let
   loop :: Environment -> InputT IO ()
@@ -117,4 +133,4 @@ runRepl = let
         showAST . head . tail $ historyLines history -- Error handler
       Just input -> liftIO $ evalAndPrint env input
     loop env
-  in runInputT defaultSettings (liftIO builtInEnv >>= loop)
+  in runInputT (setComplete completeRule defaultSettings) (liftIO builtInEnv >>= loop)

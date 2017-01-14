@@ -6,13 +6,14 @@ import Text.Parsec.Language (emptyDef)
 
 import qualified Text.Parsec.Token as Tok
 
+reservedNames = ["\'", "lambda", "define",
+                 "begin", "while", "if",
+                 "let", "set!",
+                 "make-vector", "vector-set!",
+                 "#t", "#f"]
+
 lexer :: Tok.TokenParser ()
 lexer = let
-  names = ["\'", "lambda", "define",
-           "begin", "while", "if",
-           "let", "set!",
-           "make-vector", "vector-set!",
-           "#t", "#f"]
   symbolLetter = oneOf "!#$%&|*+-/:<=>?@^_~"
   def = emptyDef {
     Tok.commentStart = "#|",
@@ -22,7 +23,7 @@ lexer = let
     Tok.identStart = symbolLetter <|> letter,
     Tok.identLetter = symbolLetter <|> digit <|> letter,
     Tok.reservedOpNames = [],
-    Tok.reservedNames = names,
+    Tok.reservedNames = reservedNames,
     Tok.caseSensitive = True
   }
   in Tok.makeTokenParser def
