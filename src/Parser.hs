@@ -14,6 +14,9 @@ parseNumber = fmap NumberExpr number
 parseBool :: Parser Expr
 parseBool = fmap BoolExpr bool
 
+parseChar :: Parser Expr
+parseChar = fmap CharExpr char_
+
 parseList :: Parser Expr
 parseList = ListExpr <$> sepBy parseExpr spaces
 
@@ -156,6 +159,7 @@ parseExpr = do
   spaces
   expr <- parseNumber
       <|> parseBool
+      <|> parseChar
       <|> parseQuoted
       <|> parseSymbol
       <|> parseString

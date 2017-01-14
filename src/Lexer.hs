@@ -42,6 +42,13 @@ bool = True <$ reserved "#t"
 symbol :: Parser String
 symbol = Tok.identifier lexer
 
+char_ :: Parser Char
+char_ = do
+  char '\''
+  c <- noneOf "\'"
+  char '\''
+  return c
+
 string :: Parser String
 string = do
   char '"'
