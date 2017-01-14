@@ -152,18 +152,22 @@ parseVectorSet = do
   return $ SetVarExpr a (UpdateVectorExpr (SymbolExpr a) idx val)
 
 parseExpr :: Parser Expr
-parseExpr = parseNumber
-        <|> parseBool
-        <|> parseQuoted
-        <|> parseSymbol
-        <|> parseString
-        <|> try parseIf
-        <|> try parseMakeVector
-        <|> try parseVectorSet
-        <|> try parseWhile
-        <|> try parseLambda
-        <|> try parseSet
-        <|> try parseDefine
-        <|> try parseFuncDefine
-        <|> try parseBegin
-        <|> parseFuncCall
+parseExpr = do
+  spaces
+  expr <- parseNumber
+      <|> parseBool
+      <|> parseQuoted
+      <|> parseSymbol
+      <|> parseString
+      <|> try parseIf
+      <|> try parseMakeVector
+      <|> try parseVectorSet
+      <|> try parseWhile
+      <|> try parseLambda
+      <|> try parseSet
+      <|> try parseDefine
+      <|> try parseFuncDefine
+      <|> try parseBegin
+      <|> parseFuncCall
+  spaces
+  return expr
