@@ -62,9 +62,15 @@ prop_scope (Positive n) = monadicIO $ do
 
 prop_while :: Positive Integer -> Property
 prop_while (Positive n) = monadicIO $ do
-  value <- run $ evalAnyWay $ concat ["(begin (define x 0) (while (< x ", show n ,") (set! x (+ x 1))) x)"]
+  value <- run $ evalAnyWay $ concat ["(begin (define x 0) (while (< x ", show n,") (set! x (+ x 1))) x)"]
   res <- liftIO . unwrapIOThrows . liftThrows $ unwrapNumber value
   assert (res == fromInteger n)
+
+prop_ordinary_function :: Positive Integer -> Property
+prop_ordinary_function (Positive n) = monadicIO $ do
+  value <- run $ evalAnyWay $ concat ["(begin (define (f x) (* x x)) (f ", show n,"))"]
+  res <- liftIO . unwrapIOThrows . liftThrows $ unwrapNumber value
+  assert (res == fromInteger (n * n))
 
 main = do
   quickCheck prop_number
@@ -76,3 +82,4 @@ main = do
   quickCheck prop_higherOrder
   quickCheck prop_scope
   quickCheck prop_while
+  quickCheck prop_ordinary_function
