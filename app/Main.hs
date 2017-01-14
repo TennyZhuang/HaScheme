@@ -2,41 +2,53 @@ module Main where
 
 import System.IO
 import System.Environment
+import Control.Monad
 import Text.Parsec (parse)
 
 import Parser
 import Interpreter
 import Repl
 
-getFileContent :: String -> IO String
-getFileContent input = do
-  inh <- openFile input ReadMode
-  expr <- hGetLine inh
-  hClose inh
-  return expr
-
 resultToFile :: String -> String -> IO ()
 resultToFile input output = do
-  expr <- getFileContent input
-  result <- evalAnyWay expr
+  inh <- openFile input ReadMode
   case output of
-    "stdout" -> print result
+    "stdout" -> handleExpr inh stdout
     _ -> do
       onh <- openFile output WriteMode
-      hPrint onh result
+      handleExpr inh onh
       hClose onh
+  hClose inh
+
+handleExpr :: Handle -> Handle -> IO ()
+handleExpr inh onh = do
+  expr <- hIsEOF inh
+  unless expr $ do
+    expr <- hGetLine inh
+    result <- evalAnyWay expr
+    hPrint onh result
+    handleExpr inh onh
 
 astToFile :: String -> String -> IO ()
 astToFile input output = do
-  expr <- getFileContent input
-  case parse parseExpr "Scheme" expr of
-    Left err -> putStrLn $ "No match: " `mappend` show err
-    Right ast -> case output of
-      "stdout" -> showExpr 0 ast
-      _ -> do
-        onh <- openFile output WriteMode
-        hPrint onh ast
-        hClose onh
+  inh <- openFile input ReadMode
+  case output of
+    "stdout" -> handleAST inh stdout
+    _ -> do
+      onh <- openFile output WriteMode
+      handleAST inh onh
+      hClose onh
+  hClose inh
+
+handleAST :: Handle -> Handle -> IO ()
+handleAST inh onh = do
+  expr <- hIsEOF inh
+  unless expr $ do
+    expr <- hGetLine inh
+    case parse parseExpr "Scheme" expr of
+      Left err -> hPrint onh $ "No match: " `mappend` show err
+      Right ast -> hPrint onh ast
+    handleAST inh onh
 
 main :: IO ()
 main = do
