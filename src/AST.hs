@@ -16,6 +16,7 @@ data Expr =
   VectorInitExpr Expr |
   UpdateVectorExpr Expr Expr Expr |
   BeginExpr Expr |
+  LoadExpr String |
   TopLevelExpr [Expr] deriving (Show)
 
 fromList :: [Expr] -> Expr

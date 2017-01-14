@@ -2,12 +2,16 @@ module Interpreter where
 
 import Data.IORef
 import Data.Array
+import System.IO
 import Control.Monad.Except
+import Text.Parsec (parse)
 
 import AST
 import Interpreter.Define
 import Interpreter.Environment
 import Interpreter.Operand
+import Parser (parseTopLevel)
+
 
 apply :: Environment -> SchemeValue -> [SchemeValue] -> IOThrowsError SchemeValue
 apply _ (SchemeBuiltInFunc f) args = liftThrows $ f args
@@ -17,6 +21,16 @@ apply envRef (SchemeFunc argnames body closure) args =
     else do
       newEnv <- liftIO . bindVars closure $ zip argnames args
       eval newEnv body
+
+schemeLoad :: Environment -> String -> IOThrowsError SchemeValue
+schemeLoad env filename = do
+  inh <- liftIO $ openFile filename ReadMode
+  expr <- liftIO $ hGetContents inh
+  res <- case parse parseTopLevel "Scheme" expr of
+    Left err -> throwError Unknown
+    Right ast -> eval env ast
+  liftIO $ hClose inh
+  return res
 
 eval :: Environment -> Expr -> IOThrowsError SchemeValue
 eval _ (NumberExpr x) = return $ SchemeNumber x
@@ -59,4 +73,5 @@ eval env (FuncCallExpr caller args) = do
 eval env (DefineVarExpr varname expr) = eval env expr >>= defineVar env varname
 eval env (SetVarExpr varname expr) = eval env expr >>= setVar env varname
 eval env (BeginExpr exprsE) = last <$> (eval env exprsE >>= (liftThrows . unwrapList))
+eval env (LoadExpr filename) = schemeLoad env filename
 eval env (TopLevelExpr exprs) = fmap SchemeTopLevel . sequence $ fmap (eval env) exprs

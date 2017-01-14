@@ -6,7 +6,7 @@ import Text.Parsec.Language (emptyDef)
 
 import qualified Text.Parsec.Token as Tok
 
-reservedNames = ["\'", "lambda", "define",
+reservedNames = ["\'", "load", "lambda", "define",
                  "begin", "while", "if",
                  "let", "set!",
                  "make-vector", "vector-set!",

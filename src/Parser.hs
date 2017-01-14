@@ -154,6 +154,10 @@ parseVectorSet = do
   char ')'
   return $ SetVarExpr a (UpdateVectorExpr (SymbolExpr a) idx val)
 
+
+parseLoad :: Parser Expr
+parseLoad = fmap LoadExpr . parens $ reserved "load" >> spaces >> string
+
 parseExpr :: Parser Expr
 parseExpr = do
   spaces
@@ -163,6 +167,7 @@ parseExpr = do
       <|> parseQuoted
       <|> parseSymbol
       <|> parseString
+      <|> try parseLoad
       <|> try parseIf
       <|> try parseMakeVector
       <|> try parseVectorSet
