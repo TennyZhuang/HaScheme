@@ -20,7 +20,8 @@ opMap = [
   ("=", numberBoolOp (==)),
   ("car", schemeCar),
   ("cdr", schemeCdr),
-  ("cons", schemeCons)]
+  ("cons", schemeCons),
+  ("vector-ref", schemeVectorRef)]
 
 nullEnv :: IO Environment
 nullEnv = newIORef []

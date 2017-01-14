@@ -1,6 +1,7 @@
 module Interpreter.Operand where
 
 import Control.Monad.Except
+import Data.Array
 
 import Interpreter.Define
 
@@ -39,6 +40,12 @@ schemeIf :: [SchemeValue] -> ThrowsError SchemeValue
 schemeIf [SchemeBool b, v1, v2] = return $ if b then v1 else v2
 schemeIf [arg, _, _] = throwError $ TypeMismatch "bool" arg
 schemeIf args = throwError $ ArgsNumber 3 args
+
+schemeVectorRef :: [SchemeValue] -> ThrowsError SchemeValue
+schemeVectorRef [SchemeArray a, SchemeNumber idxD]
+  | idxI >= 0 && idxI < length a = return $ a ! idxI
+  | otherwise = throwError Unknown
+  where idxI = round idxD
 
 numberNumberOp :: (Double -> Double -> Double) -> [SchemeValue] -> ThrowsError SchemeValue
 numberNumberOp f l = fmap (SchemeNumber . foldl1 f) (sequence $ fmap unwrapNumber l)
