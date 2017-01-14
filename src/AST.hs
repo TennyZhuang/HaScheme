@@ -15,7 +15,8 @@ data Expr =
   SetVarExpr String Expr |
   VectorInitExpr Expr |
   UpdateVectorExpr Expr Expr Expr |
-  BeginExpr Expr deriving (Show)
+  BeginExpr Expr |
+  TopLevelExpr [Expr] deriving (Show)
 
 fromList :: [Expr] -> Expr
 fromList = let

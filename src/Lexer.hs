@@ -63,4 +63,4 @@ parens :: Parser a -> Parser a
 parens = Tok.parens lexer
 
 spaces :: Parser ()
-spaces = skipMany space -- TODO: buggy, skipMany1
+spaces = skipMany (oneOf " \n\t\b") -- TODO: buggy, skipMany1

@@ -175,3 +175,6 @@ parseExpr = do
       <|> parseFuncCall
   spaces
   return expr
+
+parseTopLevel :: Parser Expr
+parseTopLevel = TopLevelExpr <$> many parseExpr

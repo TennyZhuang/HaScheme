@@ -24,9 +24,8 @@ handleExpr :: Handle -> Handle -> IO ()
 handleExpr inh onh = do
   expr <- hIsEOF inh
   unless expr $ do
-    expr <- hGetLine inh
+    expr <- hGetContents inh
     hEvalToIO expr onh
-    handleExpr inh onh
 
 astToFile :: String -> String -> IO ()
 astToFile input output = do
@@ -44,7 +43,7 @@ handleAST inh onh = do
   expr <- hIsEOF inh
   unless expr $ do
     expr <- hGetLine inh
-    case parse parseExpr "Scheme" expr of
+    case parse parseTopLevel "Scheme" expr of
       Left err -> hPrint onh $ "No match: " `mappend` show err
       Right ast -> hPrint onh ast
     handleAST inh onh

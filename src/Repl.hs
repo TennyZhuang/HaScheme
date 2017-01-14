@@ -31,7 +31,7 @@ showRes res = do
   setSGR [Reset]
 
 showAST :: String -> InputT IO ()
-showAST expr = case parse parseExpr "Scheme" expr of
+showAST expr = case parse parseTopLevel "Scheme" expr of
   Left err -> outputStrLn $ "No match: " `mappend` show err
   Right ast -> liftIO $ showExpr 0 ast
 
@@ -89,7 +89,7 @@ showExpr n ast = do
       setSGR [Reset]
 
 evalAndPrint :: Environment -> String -> IO ()
-evalAndPrint env expr = case parse parseExpr "Scheme" expr of
+evalAndPrint env expr = case parse parseTopLevel "Scheme" expr of
   Left err -> showErr $ "No match: " `mappend` show err
   Right ast -> do
     res <- runExceptT $ eval env ast
@@ -103,12 +103,12 @@ fromRight (Right v) = v
 
 evalAnyWay :: String -> IO SchemeValue
 evalAnyWay expr = do
-  let ast = fromRight $ parse parseExpr "Scheme" expr
+  let ast = fromRight $ parse parseTopLevel "Scheme" expr
   env <- builtInEnv
   unwrapIOThrows $ eval env ast
 
 hEvalToIO :: String -> Handle -> IO ()
-hEvalToIO expr handler = case parse parseExpr "Scheme" expr of
+hEvalToIO expr handler = case parse parseTopLevel "Scheme" expr of
   Left err -> hPrint handler  $ "No match: " `mappend` show err
   Right ast -> do
     env <- builtInEnv

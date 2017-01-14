@@ -2,6 +2,7 @@ module Interpreter.Define where
 
 import Control.Monad.Except
 import Data.IORef
+import Data.List (intercalate)
 import Data.Array
 
 import AST
@@ -17,6 +18,7 @@ data SchemeValue =
   SchemeCons (SchemeValue, SchemeValue) |
   SchemeBuiltInFunc ([SchemeValue] -> ThrowsError SchemeValue) |
   SchemeFunc [String] Expr Environment |
+  SchemeTopLevel [SchemeValue] |
   SchemeNil
 
 instance Show SchemeValue where
@@ -28,6 +30,7 @@ instance Show SchemeValue where
   show (SchemeCons (l, r)) = concat ["(", show l, " . ", show r, ")"]
   show (SchemeBuiltInFunc _) = "build-in"
   show (SchemeFunc args _ _) = concat ["lambda (", unwords args, ")"]
+  show (SchemeTopLevel vals) = intercalate "\n" $ fmap show vals
   show SchemeNil = "()"
 
 typeOf :: SchemeValue -> String
