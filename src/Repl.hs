@@ -39,6 +39,7 @@ showExpr :: Int -> Expr -> IO ()
 showExpr n ast = do
   putStr $ replicate n ' '
   case ast of
+    TopLevelExpr exprs -> sequence_ $ fmap (showExpr n) exprs
     FuncCallExpr x y -> do
       setSGR [SetColor Foreground Vivid Blue]
       putStrLn "FuncCallExpr"
@@ -75,9 +76,12 @@ showExpr n ast = do
       setSGR [Reset]
     ListExpr xs -> do
       setSGR [SetColor Foreground Vivid Yellow]
-      putStrLn "ListExpr"
+      putStrLn "ListExpr ("
+      sequence_ $ fmap (\expr -> (showExpr (n + 2) expr)) xs
+      setSGR [SetColor Foreground Vivid Yellow]
+      putStr $ replicate n ' '
+      putStrLn ")\n"
       setSGR [Reset]
-      showExpr (n + 2) $ AST.fromList xs
     BeginExpr x -> do
       setSGR [SetColor Foreground Vivid Yellow]
       putStrLn "BeginExpr"
