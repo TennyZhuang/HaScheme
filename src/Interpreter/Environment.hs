@@ -4,6 +4,7 @@ import Interpreter.Define
 import Interpreter.Operand
 
 import Data.IORef
+import qualified Data.Map as Map
 import Control.Monad.Except
 
 opMap :: [(String, [SchemeValue] -> ThrowsError SchemeValue)]
@@ -26,7 +27,7 @@ opMap = [
   ("vector-ref", schemeVectorRef)]
 
 nullEnv :: IO Environment
-nullEnv = newIORef []
+nullEnv = newIORef Map.empty
 
 builtInEnv :: IO Environment
 builtInEnv = do
@@ -38,14 +39,14 @@ getVar envRef varname = do
   env <- liftIO $ readIORef envRef
   maybe (throwError $ UnboundVariable varname)
         (liftIO . readIORef)
-        (lookup varname env)
+        (Map.lookup varname env)
 
 setVar :: Environment -> String -> SchemeValue -> IOThrowsError SchemeValue
 setVar envRef varname val = do
   env <- liftIO $ readIORef envRef
   maybe (throwError $ UnboundVariable varname)
         (liftIO . (`writeIORef` val))
-        (lookup varname env)
+        (Map.lookup varname env)
   return val
 
 defineVar :: Environment -> String -> SchemeValue -> IOThrowsError SchemeValue
@@ -53,7 +54,7 @@ defineVar envRef varname val = do
   env <- liftIO $ readIORef envRef
   liftIO $ do
     valRef <- newIORef val
-    writeIORef envRef ((varname, valRef) : env)
+    writeIORef envRef (Map.insert varname valRef env)
     return val
 
 bindVars :: Environment -> [(String, SchemeValue)] -> IO Environment

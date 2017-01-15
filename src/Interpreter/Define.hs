@@ -2,12 +2,13 @@ module Interpreter.Define where
 
 import Control.Monad.Except
 import Data.IORef
+import Data.Map (Map)
 import Data.List (intercalate)
 import Data.Array
 
 import AST
 
-type Environment = IORef [(String, IORef SchemeValue)]
+type Environment = IORef (Map String (IORef SchemeValue))
 
 data SchemeValue =
   SchemeNumber Double |
