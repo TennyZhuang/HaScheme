@@ -149,6 +149,10 @@ runRepl = let
         case lastInput of
           Just x -> showAST (drop 2 x)
           Nothing -> liftIO $ showErr "No last command"
+      Just ":h" -> do
+        liftIO $ showRes ":i <program> -- interrupt program and output result"
+        liftIO $ showRes ":q -- quit"
+        liftIO $ showRes ":t -- show the AST of last program"
       Just input -> if ":i" `isPrefixOf` input
         then liftIO $ evalAndPrint env (drop 2 input)
         else liftIO $ showErr "Please start with :i, :t, :q or :h"
