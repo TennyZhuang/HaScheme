@@ -107,7 +107,7 @@ fromRight (Right v) = v
 
 evalAnyWay :: String -> IO SchemeValue
 evalAnyWay expr = do
-  let ast = fromRight $ parse parseTopLevel "Scheme" expr
+  let ast = fromRight $ parse parseExpr "Scheme" expr
   env <- builtInEnv
   unwrapIOThrows $ eval env ast
 
