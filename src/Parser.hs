@@ -163,7 +163,7 @@ parseExpr = do
   spaces
   expr <- parseNumber
       <|> parseBool
-      <|> parseChar
+      <|> try parseChar
       <|> parseQuoted
       <|> parseSymbol
       <|> parseString
