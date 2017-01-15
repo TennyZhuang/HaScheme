@@ -18,6 +18,8 @@ opMap = [
   ("<", numberBoolOp (<)),
   (">", numberBoolOp (>)),
   ("=", numberBoolOp (==)),
+  ("<=", numberBoolOp (<=)),
+  (">=", numberBoolOp (>=)),
   ("car", schemeCar),
   ("cdr", schemeCdr),
   ("cons", schemeCons),
