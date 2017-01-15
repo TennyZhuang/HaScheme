@@ -45,7 +45,7 @@ handleAST inh onh = do
     expr <- hGetLine inh
     case parse parseTopLevel "Scheme" expr of
       Left err -> hPrint onh $ "No match: " `mappend` show err
-      Right ast -> hPrint onh ast
+      Right ast -> showExpr onh 0 ast
     handleAST inh onh
 
 main :: IO ()

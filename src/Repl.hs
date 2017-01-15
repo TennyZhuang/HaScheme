@@ -33,63 +33,63 @@ showRes res = do
 showAST :: String -> InputT IO ()
 showAST expr = case parse parseTopLevel "Scheme" expr of
   Left err -> outputStrLn $ "No match: " `mappend` show err
-  Right ast -> liftIO $ showExpr 0 ast
+  Right ast -> liftIO $ showExpr stdout 0 ast
 
-showExpr :: Int -> Expr -> IO ()
-showExpr n ast = do
-  putStr $ replicate n ' '
+showExpr :: Handle -> Int -> Expr -> IO ()
+showExpr handler n ast = do
+  hPutStr handler $ replicate n ' '
   case ast of
-    TopLevelExpr exprs -> sequence_ $ fmap (showExpr n) exprs
+    TopLevelExpr exprs -> sequence_ $ fmap (showExpr handler n) exprs
     FuncCallExpr x y -> do
       setSGR [SetColor Foreground Vivid Blue]
-      putStrLn "FuncCallExpr"
+      hPutStrLn handler "FuncCallExpr"
       setSGR [Reset]
-      showExpr (n + 2) x
-      showExpr (n + 2) y
+      showExpr handler (n + 2) x
+      showExpr handler (n + 2) y
     LambdaFuncExpr ss x -> do
       setSGR [SetColor Foreground Vivid Yellow]
-      putStrLn $ "LambdaFuncExpr " `mappend` show ss
+      hPutStrLn handler $ "LambdaFuncExpr " `mappend` show ss
       setSGR [Reset]
-      showExpr (n + 2) x
+      showExpr handler (n + 2) x
     DefineVarExpr s x -> do
       setSGR [SetColor Foreground Vivid Green]
-      putStrLn $ "DefineVarExpr " `mappend` show s
+      hPutStrLn handler $ "DefineVarExpr " `mappend` show s
       setSGR [Reset]
-      showExpr (n + 2) x
+      showExpr handler (n + 2) x
     SetVarExpr s x -> do
       setSGR [SetColor Foreground Vivid Magenta]
-      putStrLn $ "SetVarExpr " `mappend` show s
+      hPutStrLn handler $ "SetVarExpr " `mappend` show s
       setSGR [Reset]
-      showExpr (n + 2) x
+      showExpr handler (n + 2) x
     ConsExpr (x, y) -> do
       setSGR [SetColor Foreground Vivid Cyan]
-      putStrLn "ConsExpr"
-      showExpr (n + 2) x
-      showExpr (n + 2) y
+      hPutStrLn handler "ConsExpr"
+      showExpr handler (n + 2) x
+      showExpr handler (n + 2) y
       setSGR [Reset]
     IfExpr x y z -> do
       setSGR [SetColor Foreground Vivid Blue]
-      putStrLn "IfExpr"
-      showExpr (n + 2) x
-      showExpr (n + 2) y
-      showExpr (n + 2) z
+      hPutStrLn handler "IfExpr"
+      showExpr handler (n + 2) x
+      showExpr handler (n + 2) y
+      showExpr handler (n + 2) z
       setSGR [Reset]
     ListExpr xs -> do
       setSGR [SetColor Foreground Vivid Yellow]
-      putStrLn "ListExpr ("
-      sequence_ $ fmap (\expr -> (showExpr (n + 2) expr)) xs
+      hPutStrLn handler "ListExpr ("
+      sequence_ $ fmap (showExpr handler (n + 2)) xs
       setSGR [SetColor Foreground Vivid Yellow]
-      putStr $ replicate n ' '
-      putStrLn ")\n"
+      hPutStr handler $ replicate n ' '
+      hPutStrLn handler ")\n"
       setSGR [Reset]
     BeginExpr x -> do
       setSGR [SetColor Foreground Vivid Yellow]
-      putStrLn "BeginExpr"
+      hPutStrLn handler "BeginExpr"
       setSGR [Reset]
-      showExpr (n + 2) x
+      showExpr handler (n + 2) x
     _ -> do
       setSGR [SetColor Foreground Vivid Cyan]
-      print ast
+      hPrint handler ast
       setSGR [Reset]
 
 evalAndPrint :: Environment -> String -> IO ()
